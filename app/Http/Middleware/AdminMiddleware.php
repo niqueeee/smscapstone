@@ -13,6 +13,7 @@ class AdminMiddleware
      */
     public function handle($request, Closure $next)
     {
+        return $next($request);
         if(!Auth::guest()){
             if(Auth::user()->type == 'Admin')
                 return $next($request);

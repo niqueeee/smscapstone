@@ -1,5 +1,7 @@
 <?php
 namespace App;
+use Laravel\Passport\HasApiTokens;
+
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -7,6 +9,7 @@ class User extends Authenticatable
 {
     use Notifiable;
     use SoftDeletes;
+    use HasApiTokens, Notifiable;
     protected $dates = ['deleted_at'];
     public $timestamps = false;
     public $incrementing = false;
