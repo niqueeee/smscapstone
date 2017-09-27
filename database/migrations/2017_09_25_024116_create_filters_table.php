@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateSettingsTable extends Migration {
+class CreateFiltersTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,12 +12,10 @@ class CreateSettingsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('settings', function(Blueprint $table)
+		Schema::create('filters', function(Blueprint $table)
 		{
-			$table->string('title', 100);
-			$table->string('logo', 36);
-			$table->boolean('year_count');
-			$table->boolean('semester_count');
+			$table->string('user_id', 30)->index('f_filters_user_id_idx');
+			$table->string('criteria', 45);
 		});
 	}
 
@@ -29,7 +27,7 @@ class CreateSettingsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('settings');
+		Schema::drop('filters');
 	}
 
 }

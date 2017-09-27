@@ -122,27 +122,6 @@ $(document).ready(function() {
           }
         }
       }
-      if (ctr == 3) {
-        var concat1 = $('#school1').val() + "" + $('#course1').val();
-        var concat2 = $('#school2').val() + "" + $('#course2').val();
-        var concat3 = $('#school3').val() + "" + $('#course3').val();
-        if ($('#elemenrolled').val() >= $('#elemgrad').val()) {
-          pass = false;
-          alert('Elem Enrolled Must Not be equal or less than Graduate')
-        } else if ($('#hsenrolled').val() >= $('#hsgrad').val()) {
-          pass = false;
-          alert('HS Enrolled Must Not be equal or less than Date Graduate')
-        } else if (concat1 == concat2) {
-          pass = false;
-          alert('The value of First and Second School and Course Must Not be the Same ');
-        } else if (concat2 == concat3) {
-          pass = false;
-          alert('The value of Second and Third School and Course Must Not be the Same ');
-        } else if (concat3 == concat1) {
-          pass = false;
-          alert('The value of First and Third School and Course Must Not be the Same ');
-        }
-      }
       if (pass) {
         navigateTo(curIndex() + 1);
         var current_active_step = $(this).parents('.f1').find('.f1-step.active');
@@ -231,51 +210,49 @@ $(document).ready(function() {
       "<div class='col-md-6'>" +
       "<label>Current Course:</label> " + $("select[name='intPersCurrentCourse'] option:selected").text() + " <br>" +
       "</div>" +
-      "</div>" +
-      "<br>" +
-      "<label>Grade</label> <br>"+
-      "<div class='row'>";
-      for (var i = 0; i < subject; i++) {
-        console.log($('.subject_description')[i].value);
-        div += "<div class='col-md-4'>" +
-        "<label>Description:</label> " + $('.subject_description')[i].text() + " <br>" +
-        "</div>" +
-        "<div class='col-md-4'>" +
-        "<label>Units:</label> " + $('.units')[i].text() + "<br>" +
-        "</div>" +
-        "<div class='col-md-4'>" +
-        "<label>Grade:</label> " + $("select[class='subject_grade'] option:selected")[i].text() + "<br>" +
-        "</div>";
+      "</div>";
+      console.log(grade);
+      if (grade == 0) {
+        div += "<br><label>Grade</label> <br>"+
+        "<div class='row'>";
+        for (var i = 0; i <= subject; i++) {
+          div += "<div class='col-md-4'>" +
+          "<label>Description:</label> " + $('.subject_description')[i].value + " <br>" +
+          "</div>" +
+          "<div class='col-md-4'>" +
+          "<label>Units:</label> " + $('.units')[i].value + "<br>" +
+          "</div>" +
+          "<div class='col-md-4'>" +
+          "<label>Grade:</label> " + $(".subject_grade")[i].value + "<br>" +
+          "</div>";
+        }
+        div += "</div>";
       }
-      div += "</div>" +
-      "<label>Name three(3) courses you wish to enroll in and the respective school (in order of your preference):</label> <br>" +
-      "<div class='row'>" +
-      "<div class='col-md-4'>" +
-      "<label>School 1:</label> " + $("select[id='school1'] option:selected").text() + " <br>" +
-      "<label>Course 1:</label> " + $("select[id='course1'] option:selected").text() + " <br>" +
-      "</div>" +
-      "<div class='col-md-4'>" +
-      "<label>School 2:</label> " + $("select[id='school2'] option:selected").text() + " <br>" +
-      "<label>Course 2:</label> " + $("select[id='course2'] option:selected").text() + " <br>" +
-      "</div>" +
-      "<div class='col-md-4'>" +
-      "<label>School 3:</label> " + $("select[id='school3'] option:selected").text() + " <br>" +
-      "<label>Course 3:</label> " + $("select[id='course3'] option:selected").text() + " <br>" +
-      "</div>" +
-      "</div>" +
-      "<hr>" +
+      div += "<hr>" +
       "<label>Community Involvement/Affiliation</label> <br>" +
       "<div class='row'>";
       for (var i = 0; i < ctr_organization; i++) {
-        div += "<div class='col-md-6'>" +
-        "<label>Organization:</label> " + $('.organization')[i].value + " <br>" +
-        "</div>" +
-        "<div class='col-md-3'>" +
-        "<label>Position:</label> " + $('.position')[i].value + " <br>" +
-        "</div>" +
-        "<div class='col-md-3'>" +
-        "<label>Year of Participation:</label> " + $('.year')[i].value + " <br>" +
-        "</div>";
+        if ($('.organization')[i].value != '' && $('.position')[i].value != '') {
+          div += "<div class='col-md-6'>" +
+          "<label>Organization:</label> " + $('.organization')[i].value + " <br>" +
+          "</div>" +
+          "<div class='col-md-3'>" +
+          "<label>Position:</label> " + $('.position')[i].value + " <br>" +
+          "</div>" +
+          "<div class='col-md-3'>" +
+          "<label>Year of Participation:</label> " + $('.year')[i].value + " <br>" +
+          "</div>";
+        } else {
+          div += "<div class='col-md-6'>" +
+          "<label>Organization:</label> N/A <br>" +
+          "</div>" +
+          "<div class='col-md-3'>" +
+          "<label>Position:</label> N/A <br>" +
+          "</div>" +
+          "<div class='col-md-3'>" +
+          "<label>Year of Participation:</label> N/A <br>" +
+          "</div>";
+        }
       }
       div += "</div>" +
       "<hr>" +
@@ -442,6 +419,7 @@ function inputGrade() {
     $('#grade').empty();
   } else {
     $('#academic').toggle(false).toggle();
+    $('#grade').empty();
     $.get(url + '/grade/' + $('#intPersCurrentSchool').val(), function(data) {
       var selectGrade = '';
       $.each(data, function(index, value) {
@@ -449,23 +427,64 @@ function inputGrade() {
       });
       var show = "<div class='form-group col-md-6'>" +
       "<label class='control-label'>Description</label>" +
-      "<input id='subject_description' class='form-control subject_description' maxlength='45' autocomplete='off' data-parsley-pattern='^[a-zA-Z0-9 ]+$' name='subject_description[]' type='text'></div>" +
+      "<input id='subject_description' class='form-control subject_description' maxlength='45' required='required' autocomplete='off' data-parsley-pattern='^[a-zA-Z0-9 ]+$' name='subject_description[]' type='text'></div>" +
       "<div class='form-group col-md-2'>" +
       "<label class='control-label'>Units</label>" +
-      "<input id='units' class='form-control units' maxlength='1' autocomplete='off' data-parsley-pattern='^[0-9 ]+$' name='units[]' type='text'></div>" +
+      "<input id='units' class='form-control units' maxlength='1' autocomplete='off' required='required' data-parsley-pattern='^[0-9 ]+$' name='units[]' type='text'></div>" +
       "<div class='form-group col-md-4'>" +
       "<label class='control-label'>Grade</label>" +
       "<select id='subject_grade' class='form-control subject_grade' name='subject_grade[]'>" + selectGrade +"</select></div>";
-      $('#grade').empty().append(show);
+      $('#grade').append(show);
     });
+    getCredit();
+    $('.subject_description').parsley();
+    $('.units').parsley();
+    $('.subject_grade').parsley();
   }
 }
 $('#intPersCurrentSchool').change(function() {
   inputGrade();
+  getCredit();
+});
+$('#intPersCurrentCourse').change(function() {
+  getCredit();
 });
 $('#councilor').on('mouseenter', '.councilor', function() {
   $.get(url + '/count/' + $(this).attr('value'), function(data) {
     $('#slot' + data.id).text('Slot:' + data.slot + '/' + data.max + ' - Queue:' + data.queued);
   });
 });
+function getCredit()
+{
+  $.get(url + '/credit/' + $('#intPersCurrentSchool').val() + '/' + $('#intPersCurrentCourse').val(), function(data) {
+    var selectYear = '';
+    var selectSemester = '';
+    var word = '';
+    for (var i = 1; i <= data.year; i++) {
+      word = getWord(i);
+      selectYear += "<option value=" + i + ">" + word + "</option>";
+    }
+    for (var i = 1; i <= data.semester; i++) {
+      word = getWord(i);
+      selectSemester += "<option value=" + i + ">" + word + "</option>";
+    }
+    var show1 = "<select class='form-control' id='year' name='year'>"+ selectYear +"</select>";
+    $('.yearCredit').empty().append(show1);
+    var show2 = "<select class='form-control' id='semester' name='semester'>"+ selectSemester +"</select>";
+    $('.semCredit').empty().append(show2);
+  });
+}
+function getWord(i)
+{
+  if (i == 1) 
+    return 'First';
+  else if (i == 2) 
+    return 'Second';
+  else if (i == 3) 
+    return 'Third';
+  else if (i == 4) 
+    return 'Fourth';
+  else if (i == 5) 
+    return 'Fifth';
+}
 });

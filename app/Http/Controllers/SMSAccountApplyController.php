@@ -14,9 +14,7 @@ use App\Application;
 use App\Familydata;
 use App\Educback;
 use App\Siblings;
-use App\Desiredcourses;
 use Carbon\Carbon;
-use App\Current;
 use Image;
 use App\Connection;
 use App\Grade;
@@ -29,6 +27,7 @@ use App\GradingDetail;
 use App\Setting;
 use App\Affiliation;
 use App\Budget;
+use App\Credit;
 use App\Utility;
 class SMSAccountApplyController extends Controller
 {
@@ -38,6 +37,7 @@ class SMSAccountApplyController extends Controller
   }
   public function index()
   {
+    $open = Utility::where('phase_status',1)->count();
     $now = Carbon::now(Config::get('app.timezone'));
     $low = Carbon::now(Config::get('app.timezone'))->subYears(20);
     $district = District::where('is_active',1)->get();
@@ -45,8 +45,7 @@ class SMSAccountApplyController extends Controller
     $barangay = Barangay::where('is_active',1)->get();
     $school = School::where('is_active',1)->select(DB::raw("CONCAT(abbreviation,' - ',description) AS description"),'id')->get();
     $course = Course::where('is_active',1)->select(DB::raw("CONCAT(abbreviation,' - ',description) AS description"),'id')->get();
-    $setting = Setting::first();
-    return view('SMS.Account.SMSAccountApply')->withDistrict($district)->withCouncilor($councilor)->withBarangay($barangay)->withSchool($school)->withCourse($course)->withNow($now)->withLow($low)->withSetting($setting);
+    return view('SMS.Account.SMSAccountApply')->withDistrict($district)->withCouncilor($councilor)->withBarangay($barangay)->withSchool($school)->withCourse($course)->withNow($now)->withLow($low)->withOpen($open);
   }
   public function store(Request $request)
   {
@@ -162,14 +161,6 @@ class SMSAccountApplyController extends Controller
         $siblings->date_to=$request->strSiblDateTo;
         $siblings->save();
       }
-      //Insert in desired_courses
-      for ($i=0; $i < count($request->school); $i++) { 
-        $desiredcourses = new Desiredcourses;
-        $desiredcourses->student_detail_user_id=$users->id;
-        $desiredcourses->school_id=$request->school[$i];
-        $desiredcourses->course_id=$request->course[$i];
-        $desiredcourses->save();
-      }
       //Insert in grades
       $getAcademic = School::join('gradings','schools.grading_id','gradings.id')
       ->select('gradings.id')
@@ -210,9 +201,15 @@ class SMSAccountApplyController extends Controller
   {
     $district = District::join('councilors','districts.id','councilors.district_id')
     ->join('barangay','districts.id','barangay.district_id')
+    ->join('user_councilor','councilors.id','user_councilor.councilor_id')
+    ->join('users','user_councilor.user_id','users.id')
+    ->join('utilities','users.id','utilities.user_id')
     ->where('councilors.is_active',1)
     ->where('barangay.id',$id)
+    ->where('users.type','Coordinator')
+    ->where('utilities.phase_status',1)
     ->select('councilors.*',DB::raw("CONCAT(councilors.last_name,', ',councilors.first_name,' ',IFNULL(councilors.middle_name,'')) as strCounName"),'districts.id as district_id')
+    ->distinct()
     ->get();
     return Response::json($district);
   }
@@ -298,5 +295,10 @@ class SMSAccountApplyController extends Controller
     ->select('utilities.essay')
     ->first();
     return Response::json($utility);
+  }
+  public function getCredit($school, $course)
+  {
+    $credit = Credit::where('school_id',$school)->where('course_id',$course)->first();
+    return Response::json($credit);
   }
 }

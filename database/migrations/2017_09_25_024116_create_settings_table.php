@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateUtilitiesTable extends Migration {
+class CreateSettingsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,10 +12,12 @@ class CreateUtilitiesTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('utilities', function(Blueprint $table)
+		Schema::create('settings', function(Blueprint $table)
 		{
-			$table->string('user_id', 30)->index('fessaysuserid_idx');
-			$table->text('essay', 65535);
+			$table->string('title', 100);
+			$table->string('logo', 36);
+			$table->char('year_count', 1);
+			$table->char('semester_count', 1);
 		});
 	}
 
@@ -27,7 +29,7 @@ class CreateUtilitiesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('utilities');
+		Schema::drop('settings');
 	}
 
 }

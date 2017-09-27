@@ -1,8 +1,8 @@
 <?php
 namespace App;
 use Illuminate\Database\Eloquent\Model;
-class Current extends Model
+class UserBudget extends Model
 {
-	protected $table = 'current_colleges';
+	protected $table = 'user_budget';
 	public $timestamps = false;
 }

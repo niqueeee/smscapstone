@@ -49,9 +49,9 @@
 										{{ Form::text('strCourDesc', null, [
 											'id' => 'strCourDesc',
 											'class' => 'form-control',
-											'maxlength' => '50',
+											'maxlength' => '100',
 											'required' => 'required',
-											'data-parsley-pattern' => '^[a-zA-Z. ]+$',
+											'data-parsley-pattern' => '^[a-zA-Z.ñ ]+$',
 											'autocomplete' => 'off'
 											]) 
 										}}

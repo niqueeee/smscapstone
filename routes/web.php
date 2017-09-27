@@ -69,7 +69,7 @@ Route::group(['prefix' => 'coordinator/'], function () {
 	Route::get('requirements/data', ['uses' => 'CoordinatorRequirementController@data', 'as' => 'coordinatorrequirements.data']);
 	Route::get('renewal/data', ['uses' => 'CoordinatorRenewalController@data', 'as' => 'coordinatorrenewal.data']);
 	Route::get('events/data', ['uses' => 'CoordinatorEventsController@data', 'as' => 'coordinatorevents.data']);
-	Route::get('applications/data', ['uses' => 'CoordinatorApplicantsController@data', 'as' => 'applications.data']);
+	Route::post('applicants/data', ['uses' => 'CoordinatorApplicantsController@data', 'as' => 'applicants.data']);
 	Route::get('budget/data', ['uses' => 'CoordinatorBudgetController@data', 'as' => 'budget.data']);
 	Route::get('messages/sentdata', ['uses' => 'CoordinatorMessagesController@sentdata', 'as' => 'coordinatorsent.data']);
 	Route::get('messages/inboxdata', ['uses' => 'CoordinatorMessagesController@inboxdata', 'as' => 'coordinatorinbox.data']);
@@ -82,7 +82,7 @@ Route::group(['prefix' => 'coordinator/'], function () {
 	Route::put('messages/checkbox/{id}', ['uses' => 'CoordinatorMessagesController@checkbox', 'as' => 'coordinatorinbox.checkbox']);
 	Route::put('events/attendance/checkbox/{id}', ['uses' => 'CoordinatorEventsController@attendance', 'as' => 'coordinatoreventsattendance.checkbox']);
 	Route::put('events/checkbox/{id}', ['uses' => 'CoordinatorEventsController@checkbox', 'as' => 'coordinatorevents.checkbox']);
-	Route::put('list/checkbox/{id}', ['uses' => 'CoordinatorStudentsListController@checkbox', 'as' => 'list.checkbox']);
+	Route::put('list/checkbox/{id}', ['uses' => 'CoordinatorScholarsController@checkbox', 'as' => 'list.checkbox']);
 	//Coordinator Profile
 	Route::get('profile', ['uses' => 'CoordinatorProfileController@index', 'as' => 'coordinatorprofile.index']);
 	Route::post('name', ['uses' => 'CoordinatorProfileController@name', 'as' => 'coordinatorname.store']);
@@ -101,6 +101,8 @@ Route::group(['prefix' => 'coordinator/'], function () {
 	//Coordinator Reports
 	Route::resource('reports', 'CoordinatorReportsController');
 	//Coordinator Renewal
+	Route::get('renewal/accept/{id}', ['uses' => 'CoordinatorRenewalController@accept', 'as' => 'coordinatorrenewal.accept']);
+	Route::get('renewal/decline/{id}', ['uses' => 'CoordinatorRenewalController@decline', 'as' => 'coordinatorrenewal.decline']);
 	Route::get('renewal', ['uses' => 'CoordinatorRenewalController@index', 'as' => 'coordinatorrenewal.index']);
 	//Coordinator Course
 	Route::get('course', ['uses' => 'CoordinatorCourseController@index', 'as' => 'coordinatorcourse.index']);
@@ -114,12 +116,12 @@ Route::group(['prefix' => 'coordinator/'], function () {
 	Route::delete('requirements/{id}', ['uses' => 'CoordinatorRequirementController@destroy', 'as' => 'coordinatorrequirements.destroy']);
 	//Coordinator Budget
 	Route::get('budget/getlatest', ['uses' => 'CoordinatorBudgetController@getBudget', 'as' => 'budget.getBudget']);
+	Route::get('budget/end ', ['uses' => 'CoordinatorBudgetController@end', 'as' => 'budget.end']);
 	Route::get('budget', ['uses' => 'CoordinatorBudgetController@index', 'as' => 'budget.index']);
 	Route::post('budget', ['uses' => 'CoordinatorBudgetController@store', 'as' => 'budget.store']);
 	Route::get('budget/{id} ', ['uses' => 'CoordinatorBudgetController@show', 'as' => 'budget.show']);
 	Route::get('budget/{id}/edit ', ['uses' => 'CoordinatorBudgetController@edit', 'as' => 'budget.edit']);
 	Route::put('budget/{id}', ['uses' => 'CoordinatorBudgetController@update', 'as' => 'budget.update']);
-	Route::delete('budget/{id}', ['uses' => 'CoordinatorBudgetController@destroy', 'as' => 'budget.destroy']);
 	//Coordinator Events
 	Route::get('events', ['uses' => 'CoordinatorEventsController@index', 'as' => 'coordinatorevents.index']);
 	Route::post('events', ['uses' => 'CoordinatorEventsController@store', 'as' => 'coordinatorevents.store']);
@@ -143,37 +145,31 @@ Route::group(['prefix' => 'coordinator/'], function () {
 	Route::get('messages/sent/show/{id}', ['uses' => 'CoordinatorMessagesController@showsent', 'as' => 'coordinatormessage.showsent']);
 	Route::delete('messages/sent/delete/{id}', ['uses' => 'CoordinatorMessagesController@destroysent', 'as' => 'coordinatormessage.destroysent']);
 	Route::get('messages/reply/{id}', ['uses' => 'CoordinatorMessagesController@reply', 'as' => 'coordinatormessage.reply']);
-	//Coordinator Checklist
-	Route::get('checklist', ['uses' => 'CoordinatorStudentsController@index', 'as' => 'checklist.index']);
-	Route::post('checklist', ['uses' => 'CoordinatorStudentsController@store', 'as' => 'checklist.store']);
-	Route::get('checklist/create/{id}', ['uses' => 'CoordinatorStudentsController@create', 'as' => 'checklist.create']);
-	Route::get('checklist/allocation/{id}', ['uses' => 'CoordinatorStudentsController@allocation', 'as' => 'checklist.allocation']);
-	Route::put('checklist/{id}', ['uses' => 'CoordinatorStudentsController@update', 'as' => 'checklist.update']);
-	Route::put('checklist/allocation/{id}', ['uses' => 'CoordinatorStudentsController@stipend', 'as' => 'checklist.stipend']);
-	//Coordinator List
-	Route::get('list', ['uses' => 'CoordinatorStudentsListController@index', 'as' => 'list.index']);
-	Route::post('list', ['uses' => 'CoordinatorStudentsListController@store', 'as' => 'list.store']);
-	Route::get('list/{id}', ['uses' => 'CoordinatorStudentsListController@show', 'as' => 'list.show']);
-	Route::put('list/{id}', ['uses' => 'CoordinatorStudentsListController@update', 'as' => 'list.update']);
+	//Coordinator Scholars
+	Route::get('scholars', ['uses' => 'CoordinatorScholarsController@index', 'as' => 'scholars.index']);
+	Route::post('scholars', ['uses' => 'CoordinatorScholarsController@store', 'as' => 'scholars.store']);
+	Route::get('scholars/{id}', ['uses' => 'CoordinatorScholarsController@show', 'as' => 'scholars.show']);
+	Route::post('scholars/requirements/{id}', ['uses' => 'CoordinatorScholarsController@requirements', 'as' => 'scholars.requirements']);
+	Route::post('scholars/stipend/{id}', ['uses' => 'CoordinatorScholarsController@stipend', 'as' => 'scholars.stipend']);
 	//Coordinator Applicants Details
+	Route::get('details/{id}/form', ['uses' => 'CoordinatorApplicantsDetailsController@form', 'as' => 'details.form']);
 	Route::get('details/{id}', ['uses' => 'CoordinatorApplicantsDetailsController@show', 'as' => 'details.show']);
 	Route::get('details/{id}/edit', ['uses' => 'CoordinatorApplicantsDetailsController@edit', 'as' => 'details.edit']);
 	Route::put('details/{id}', ['uses' => 'CoordinatorApplicantsDetailsController@update', 'as' => 'details.update']);
 	//Coordinator Applicantions
-	Route::get('applications', ['uses' => 'CoordinatorApplicantsController@index', 'as' => 'applications.index']);
+	Route::get('applicants', ['uses' => 'CoordinatorApplicantsController@index', 'as' => 'applicants.index']);
 	//Coordinator Dashboard
 	Route::get('dashboard', ['uses' => 'CoordinatorIndexController@index', 'as' => 'coordinator.index']);
 });
 // Admin Route List
 Route::group(['prefix' => 'admin/'], function () {
 	//Admin DataTable
+	Route::get('credit/data', ['uses' => 'AdminMCreditController@data', 'as' => 'credit.data']);
 	Route::get('users/data', ['uses' => 'AdminMAccountController@data', 'as' => 'users.data']);
 	Route::get('budget-type/data', ['uses' => 'AdminMBudgtypeController@data', 'as' => 'budgtype.data']);
 	Route::get('grade/data', ['uses' => 'AdminMGradeController@data', 'as' => 'grade.data']);
 	Route::get('requirements/data/{id}', ['uses' => 'AdminMRequirementsController@detail', 'as' => 'requirementsdetails.data']);
 	Route::get('requirements/data', ['uses' => 'AdminMRequirementsController@data', 'as' => 'requirements.data']);
-	Route::get('year/data', ['uses' => 'AdminMYearController@data', 'as' => 'year.data']);
-	Route::get('sem/data', ['uses' => 'AdminMSemController@data', 'as' => 'sem.data']);
 	Route::get('batch/data', ['uses' => 'AdminMBatchController@data', 'as' => 'batch.data']);
 	Route::get('councilor/data', ['uses' => 'AdminMCouncilorController@data', 'as' => 'councilor.data']);
 	Route::get('course/data', ['uses' => 'AdminMCourseController@data', 'as' => 'course.data']);
@@ -184,8 +180,6 @@ Route::group(['prefix' => 'admin/'], function () {
 	Route::put('users/checkbox/{id}', ['uses' => 'AdminMAccountController@checkbox', 'as' => 'users.checkbox']);
 	Route::put('budget-type/checkbox/{id}', ['uses' => 'AdminMBudgtypeController@checkbox', 'as' => 'budgtype.checkbox']);
 	Route::put('grade/checkbox/{id}', ['uses' => 'AdminMGradeController@checkbox', 'as' => 'grade.checkbox']);
-	Route::put('sem/checkbox/{id}', ['uses' => 'AdminMSemController@checkbox', 'as' => 'sem.checkbox']);
-	Route::put('year/checkbox/{id}', ['uses' => 'AdminMYearController@checkbox', 'as' => 'year.checkbox']);
 	Route::put('requirements/checkbox/{id}', ['uses' => 'AdminMRequirementsController@checkbox', 'as' => 'requirements.checkbox']);
 	Route::put('district/checkbox/{id}', ['uses' => 'AdminMDistrictController@checkbox', 'as' => 'district.checkbox']);
 	Route::put('batch/checkbox/{id}', ['uses' => 'AdminMBatchController@checkbox', 'as' => 'batch.checkbox']);
@@ -194,7 +188,8 @@ Route::group(['prefix' => 'admin/'], function () {
 	Route::put('course/checkbox/{id}', ['uses' => 'AdminMCourseController@checkbox', 'as' => 'course.checkbox']);
 	Route::put('councilor/checkbox/{id}', ['uses' => 'AdminMCouncilorController@checkbox', 'as' => 'councilor.checkbox']);
 	//Admin Utilities
-	Route::resource('utilities', 'AdminUtilitiesController');
+	Route::get('utilities', ['uses' => 'AdminUtilitiesController@index', 'as' => 'adminutilities.index']);
+	Route::post('utilities', ['uses' => 'AdminUtilitiesController@store', 'as' => 'adminutilities.store']);
 	//Admin Profile
 	Route::get('profile', ['uses' => 'AdminProfileController@index', 'as' => 'adminprofile.index']);
 	Route::post('name', ['uses' => 'AdminProfileController@name', 'as' => 'adminname.store']);
@@ -224,6 +219,12 @@ Route::group(['prefix' => 'admin/'], function () {
 	Route::get('batch/{id}/edit ', ['uses' => 'AdminMBatchController@edit', 'as' => 'batch.edit']);
 	Route::put('batch/{id}', ['uses' => 'AdminMBatchController@update', 'as' => 'batch.update']);
 	Route::delete('batch/{id}', ['uses' => 'AdminMBatchController@destroy', 'as' => 'batch.destroy']);
+	//Admin Credit
+	Route::get('credit', ['uses' => 'AdminMCreditController@index', 'as' => 'credit.index']);
+	Route::post('credit', ['uses' => 'AdminMCreditController@store', 'as' => 'credit.store']);
+	Route::get('credit/{id}/edit ', ['uses' => 'AdminMCreditController@edit', 'as' => 'credit.edit']);
+	Route::put('credit/{id}', ['uses' => 'AdminMCreditController@update', 'as' => 'credit.update']);
+	Route::delete('credit/{id}', ['uses' => 'AdminMCreditController@destroy', 'as' => 'credit.destroy']);
 	//Admin Course
 	Route::get('course', ['uses' => 'AdminMCourseController@index', 'as' => 'course.index']);
 	Route::post('course', ['uses' => 'AdminMCourseController@store', 'as' => 'course.store']);
@@ -275,6 +276,7 @@ Route::get('apply/count/{id}', ['uses' => 'SMSAccountApplyController@getCount', 
 Route::get('apply/school/{id}', ['uses' => 'SMSAccountApplyController@getSchool', 'as' => 'apply.getSchool']);
 Route::get('apply/course/{id}', ['uses' => 'SMSAccountApplyController@getCourse', 'as' => 'apply.getCourse']);
 Route::get('apply/question/{id}', ['uses' => 'SMSAccountApplyController@getQuestion', 'as' => 'apply.getQuestion']);
+Route::get('apply/credit/{school}/{course}', ['uses' => 'SMSAccountApplyController@getCredit', 'as' => 'apply.getCredit']);
 Route::get('how-to-apply', ['uses' => 'SMSHowToApplyController@index', 'as' => 'how.index']);
 Route::get('/', ['uses' => 'SMSIndexController@index', 'as' => 'sms.index']);
 //Authentication Route
